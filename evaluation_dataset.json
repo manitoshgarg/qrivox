@@ -1,0 +1,64 @@
+{
+  "dataset_name": "QRivox synthetic rule evaluation",
+  "version": 1,
+  "synthetic_only": true,
+  "label_scope": "Expected parser/rule scenario behavior only; these labels are not verified fraud labels.",
+  "cases": [
+    {
+      "id": "normal-fixed-amount",
+      "scenario": "normal-looking payment",
+      "payload": "upi://pay?pa=corner-shop%40example.test&pn=Corner%20Shop&am=125.00&cu=INR",
+      "expected_category": "normal-looking",
+      "expected_review_signal": false,
+      "notes": "Synthetic recipient; a fixed amount should remain informational."
+    },
+    {
+      "id": "missing-optional-fields",
+      "scenario": "missing optional fields",
+      "payload": "upi://pay?pa=small-store%40example.test",
+      "expected_category": "normal-looking",
+      "expected_review_signal": false,
+      "notes": "Name, amount, reference, and other optional fields are absent."
+    },
+    {
+      "id": "malformed-uri-authority",
+      "scenario": "malformed payload",
+      "payload": "upi://payment?pa=shop%40example.test",
+      "expected_category": "malformed",
+      "expected_review_signal": true,
+      "notes": "Uses an unexpected URI authority; tests the format-validation rule."
+    },
+    {
+      "id": "malformed-amount",
+      "scenario": "malformed payload",
+      "payload": "upi://pay?pa=shop%40example.test&am=not-a-number",
+      "expected_category": "malformed",
+      "expected_review_signal": true,
+      "notes": "Amount is intentionally not numeric; tests amount validation."
+    },
+    {
+      "id": "suspicious-wording",
+      "scenario": "suspicious payment wording",
+      "payload": "upi://pay?pa=recipient%40example.test&tn=urgent",
+      "expected_category": "suspicious-indicator",
+      "expected_review_signal": true,
+      "notes": "Contains an exact keyword currently checked by the heuristic."
+    },
+    {
+      "id": "external-url-text",
+      "scenario": "external URL text",
+      "payload": "upi://pay?pa=shop%40example.test&pn=Help%20https%3A%2F%2Fexample.test",
+      "expected_category": "suspicious-indicator",
+      "expected_review_signal": true,
+      "notes": "URL text appears in a name field; it is a review indicator, not proof of a malicious redirect."
+    },
+    {
+      "id": "duplicate-payee-parameter",
+      "scenario": "ambiguous duplicate parameter",
+      "payload": "upi://pay?pa=first%40example.test&pa=second%40example.test",
+      "expected_category": "malformed",
+      "expected_review_signal": true,
+      "notes": "Repeated payee parameters test the engine's ambiguity rule."
+    }
+  ]
+}
